@@ -1,0 +1,98 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+#define INF INT_MAX
+
+int find(int parent[], int i) {
+if(parent[i] != i)
+	parent[i]=find(parent,parent[i]);
+	return parent[i];
+
+}
+
+
+void union1(int parent[], int rank[], int i, int j) {
+	int iroot =find(parent,i);
+	int jroot=find(parent,j);
+
+	if (rank[iroot]<rank[jroot])
+		parent[iroot]=jroot;
+	else if(rank[iroot]>rank[jroot])
+		parent[jroot]=iroot;
+	else{
+		parent[jroot]=iroot;
+		rank[iroot]++;
+	}
+}
+
+
+void kruskalMST(int **cost, int V) {
+int parent[V],rank[V];
+	for(int i=0;i<V;i++){
+		parent[i]=i;
+		rank[i]=0;
+	}
+
+	int edgesCount=0;
+	int totalCost=0;
+	int maxEdges=V*(V-1)/2;
+	int u[maxEdges],v[maxEdges],w[maxEdges];
+	int edgeIndex=0;
+	
+	for(int i=0;i<V;i++){
+		for(int j=0;j<V;j++){
+		if(cost[i][j] != 9999 && i<j){
+			u[edgeIndex]=i;
+			v[edgeIndex]=j;
+			w[edgeIndex]=cost[i][j];
+			edgeIndex++;
+		}
+	}
+}
+	for(int i=0;i<edgeIndex-1;i++){
+		for(int j=i+1;j<edgeIndex;j++){
+			if(w[j]<w[i] 
+				|| (w[j]==w[i] && u[j]<u[i])
+				|| (w[j]==w[i] && u[j]==u[i]&&v[j]<v[i])){
+				int temp=w[i];w[i]=w[j];w[j]=temp;
+				temp=u[i];u[i]=u[j];u[j]=temp;
+				temp=v[i];v[i]=v[j];v[j]=temp;
+			}
+		}
+	}
+
+for(int i=0;i<edgeIndex && edgesCount<V-1;i++){
+	int set_u=find(parent,u[i]);
+	int set_v=find(parent,v[i]);
+
+	if(set_u!=set_v){
+		printf("Edge %d:(%d, %d) cost:%d\n",edgesCount,u[i],v[i],w[i]);
+		totalCost+=w[i];
+		union1(parent,rank,set_u,set_v);
+		edgesCount++;
+	}
+}  
+printf("Minimum cost= %d\n",totalCost);
+	}
+int main() {
+    int V;
+    printf("No of vertices: ");
+    scanf("%d", &V);
+
+    int **cost = (int **)malloc(V * sizeof(int *));
+    for (int i = 0; i < V; i++)
+        cost[i] = (int *)malloc(V * sizeof(int));
+
+    printf("Adjacency matrix:\n");
+    for (int i = 0; i < V; i++)
+        for (int j = 0; j < V; j++)
+            scanf("%d", &cost[i][j]);
+
+    kruskalMST(cost, V);
+
+    for (int i = 0; i < V; i++)
+        free(cost[i]);
+    free(cost);
+
+    return 0;
+}
